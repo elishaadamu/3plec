@@ -25,8 +25,9 @@ function AdvancedBVNSlip() {
 
   const user = slipData || {};
 
-  const avatarSrc = user.image
-    ? `data:image/jpeg;base64,${user.image}`
+  // Use base64 image if available, else fallback
+  const avatarSrc = user.base64Image
+    ? `data:image/jpeg;base64,${user.base64Image}`
     : Avatar;
 
   const handlePrint = () => {
@@ -65,7 +66,7 @@ function AdvancedBVNSlip() {
             <div>
               <p className="text-gray-400 text-[17px] font-semibold">SURNAME</p>
               <p className="text-gray-900 text-[18px] font-semibold">
-                {user?.personal_information?.last_name || "-"}
+                {user.lastName || "-"}
               </p>
             </div>
             <div className="mt-3">
@@ -73,9 +74,7 @@ function AdvancedBVNSlip() {
                 FIRST NAME/ OTHER NAME
               </p>
               <p className="text-gray-900 text-[18px] font-semibold">
-                {`${user?.personal_information?.first_name || "-"} ${
-                  user?.personal_information?.middle_name || ""
-                }`}
+                {`${user.firstName || "-"} ${user.middleName || ""}`}
               </p>
             </div>
             <div className="flex flex-row gap-10 mt-3">
@@ -84,7 +83,7 @@ function AdvancedBVNSlip() {
                   DATE OF BIRTH
                 </p>
                 <p className="text-gray-900 text-[18px] font-semibold">
-                  {user?.personal_information?.date_of_birth || "-"}
+                  {user.dateOfBirth || "-"}
                 </p>
               </div>
               <div>
@@ -92,7 +91,7 @@ function AdvancedBVNSlip() {
                   GENDER
                 </p>
                 <p className="text-gray-900 text-[18px] font-semibold">
-                  {user?.personal_information?.gender || "-"}
+                  {user.gender || "-"}
                 </p>
               </div>
               <div>
@@ -100,7 +99,7 @@ function AdvancedBVNSlip() {
                   ISSUED DATE
                 </p>
                 <p className="text-gray-900 text-[18px] font-semibold">
-                  {user?.enrollment_date || "-"}
+                  {user.enrollmentDate || "-"}
                 </p>
               </div>
             </div>

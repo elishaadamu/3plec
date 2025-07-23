@@ -38,9 +38,10 @@ function BasicBVN() {
   };
 
   // Use base64 image if available, else fallback
-  const avatarSrc = user.image
-    ? `data:image/jpeg;base64,${user.image}`
+  const avatarSrc = user.base64Image
+    ? `data:image/jpeg;base64,${user.base64Image}`
     : Avatar;
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-6">
       <ToastContainer />
@@ -69,13 +70,12 @@ function BasicBVN() {
           <div className="flex flex-col gap-4">
             <div className="flex flex-row justify-start items-start mt-3 flex-1/2">
               <div className="grid gap-2">
-                {/* Update these field mappings */}
                 <div className="flex">
                   <span className="text-gray-700 font-semibold w-[80px] inline-block text-[11px]">
                     First Name:
                   </span>
                   <span className="text-gray-600 text-[11px]">
-                    {user?.personal_information?.first_name || "-"}
+                    {user.firstName || "-"}
                   </span>
                 </div>
                 <div className="flex">
@@ -83,15 +83,15 @@ function BasicBVN() {
                     Middle Name:
                   </span>
                   <span className="text-gray-600 text-[11px]">
-                    {user?.personal_information?.middle_name || "-"}
+                    {user.middleName || "-"}
                   </span>
                 </div>
                 <div className="flex">
                   <span className="text-gray-700 font-semibold w-[80px] inline-block text-[11px]">
-                    Last Name:
+                    Last Name
                   </span>
                   <span className="text-gray-600 text-[11px]">
-                    {user?.personal_information?.last_name || "-"}
+                    {user.lastName || "-"}
                   </span>
                 </div>
                 <div className="flex">
@@ -99,7 +99,7 @@ function BasicBVN() {
                     Date of Birth:
                   </span>
                   <span className="text-gray-600 text-[11px]">
-                    {user?.personal_information?.date_of_birth || "-"}
+                    {user.dateOfBirth || "-"}
                   </span>
                 </div>
                 <div className="flex">
@@ -107,7 +107,7 @@ function BasicBVN() {
                     Gender:
                   </span>
                   <span className="text-gray-600 text-[11px]">
-                    {user?.personal_information?.gender || "-"}
+                    {user.gender || "-"}
                   </span>
                 </div>
                 <div className="">
@@ -118,7 +118,7 @@ function BasicBVN() {
                           Marital Status:
                         </span>
                         <span className="text-gray-600 text-[11px]">
-                          {user?.personal_information?.marital_status || "-"}
+                          {user.maritalStatus || "-"}
                         </span>
                       </div>
                       <div className="flex">
@@ -126,7 +126,15 @@ function BasicBVN() {
                           Phone Number:
                         </span>
                         <span className="text-gray-600 text-[11px]">
-                          {user?.personal_information?.phone_number_1 || "-"}
+                          {user.phoneNumber1 || "-"}
+                        </span>
+                      </div>
+                      <div className="flex">
+                        <span className="text-gray-700 font-semibold w-[80px] inline-block text-[11px]">
+                          Enrollment Institution:
+                        </span>
+                        <span className="text-gray-600 text-[11px]">
+                          {user.enrollmentBank || "-"}
                         </span>
                       </div>
                       <div className="flex">
@@ -134,7 +142,7 @@ function BasicBVN() {
                           Origin State:
                         </span>
                         <span className="text-gray-600 text-[11px]">
-                          {user?.personal_information?.state_of_origin || "-"}
+                          {user.stateOfOrigin || "-"}
                         </span>
                       </div>
                       <div className="flex">
@@ -142,8 +150,7 @@ function BasicBVN() {
                           Residence State:
                         </span>
                         <span className="text-gray-600 text-[11px]">
-                          {user?.personal_information?.state_of_residence ||
-                            "-"}
+                          {user.stateOfResidence || "-"}
                         </span>
                       </div>
                       <div className="flex">
@@ -151,8 +158,7 @@ function BasicBVN() {
                           Residential Address:
                         </span>
                         <span className="text-gray-600 text-[11px] w-10">
-                          {user?.personal_information?.residential_address ||
-                            "-"}
+                          {user.residentialAddress || "-"}
                         </span>
                       </div>
                     </div>
@@ -162,7 +168,15 @@ function BasicBVN() {
                           NIN:
                         </span>
                         <span className="text-gray-600 text-[11px]">
-                          {user?.personal_information?.nin || "-"}
+                          {user.nin || "-"}
+                        </span>
+                      </div>
+                      <div className="flex">
+                        <span className="text-gray-700 font-semibold w-[80px] inline-block text-[11px]">
+                          Enrollment Branch:
+                        </span>
+                        <span className="text-gray-600 text-[11px]">
+                          {user.enrollmentBranch || "-"}
                         </span>
                       </div>
                       <div className="flex">
@@ -170,7 +184,7 @@ function BasicBVN() {
                           Origin LGA:
                         </span>
                         <span className="text-gray-600 text-[11px]">
-                          {user?.personal_information?.lga_of_origin || "-"}
+                          {user.lgaOfOrigin || "-"}
                         </span>
                       </div>
                       <div className="flex">
@@ -178,7 +192,7 @@ function BasicBVN() {
                           Residence LGA:
                         </span>
                         <span className="text-gray-600 text-[11px]">
-                          {user?.personal_information?.lga_of_residence || "-"}
+                          {user.lgaOfResidence || "-"}
                         </span>
                       </div>
                     </div>
