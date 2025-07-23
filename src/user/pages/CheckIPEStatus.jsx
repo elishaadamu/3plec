@@ -28,6 +28,8 @@ function checkStatusipe() {
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
   const [verificationResult, setVerificationResult] = useState(null);
   const [amount, setAmount] = useState(0); // Default amount
+  const [countdown, setCountdown] = useState(600); // 10 minutes in seconds
+  const [isCountingDown, setIsCountingDown] = useState(false);
 
   const SECRET_KEY = import.meta.env.VITE_APP_SECRET_KEY;
 
@@ -82,7 +84,7 @@ function checkStatusipe() {
     setLoading(true);
     const payload = {
       trackingId: formData.trackingId,
-      amount,
+      amount, // Use dynamic amount
       userId,
       pin: formData.pin,
     };
@@ -96,9 +98,11 @@ function checkStatusipe() {
 
       setVerificationResult(response.data?.data);
       setIsSuccessModalVisible(true);
+      setIsCountingDown(true); // Start the countdown
       toast.success("IPE Clearance verified successfully!");
     } catch (error) {
       console.error("Verification error:", error);
+
       toast.error(error.response?.data?.message || "Verification failed");
     } finally {
       setLoading(false);
@@ -130,10 +134,12 @@ function checkStatusipe() {
         );
         console.log("Fetched pricing data:", response.data);
         // Find IPE pricing
-        const ipePricing = response.data.find((item) => item.key === "ipe");
+        const ipePricing = response.data.find(
+          (item) => item.serviceKey === "ipe"
+        );
 
-        if (ipePricing?.prices?.agent) {
-          setAmount(ipePricing.prices?.agent);
+        if (ipePricing?.agentPrice) {
+          setAmount(ipePricing.agentPrice);
         }
       } catch (error) {
         console.error("Error fetching IPE price:", error);
@@ -143,6 +149,37 @@ function checkStatusipe() {
 
     fetchPrices();
   }, []);
+
+  // Countdown timer effect
+  useEffect(() => {
+    let timer;
+    if (isCountingDown && countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prevCount) => {
+          if (prevCount <= 1) {
+            navigate("/dashboard/ipe-history");
+            return 0;
+          }
+          return prevCount - 1;
+        });
+      }, 1000);
+    }
+
+    return () => clearInterval(timer);
+  }, [isCountingDown, countdown, navigate]);
+
+  // Prevent navigation during countdown
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (isCountingDown) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isCountingDown]);
 
   return (
     <>
@@ -231,16 +268,29 @@ function checkStatusipe() {
 
       <Modal
         open={isSuccessModalVisible}
-        closable={true}
-        maskClosable={true}
-        onCancel={() => setIsSuccessModalVisible(false)}
+        closable={!isCountingDown}
+        maskClosable={false}
+        onCancel={() => {
+          if (!isCountingDown) {
+            setIsSuccessModalVisible(false);
+          }
+        }}
         footer={[
           <button
             key="check-status"
             onClick={handleViewStatus}
-            className="flex justify-center border border-black font-medium py-2 px-4 rounded-xl transition-colors bg-amber-500 hover:bg-amber-600 cursor-pointer text-white"
+            disabled={isCountingDown}
+            className={`flex justify-center border border-black font-medium py-2 px-4 rounded-xl transition-colors ${
+              isCountingDown
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-amber-500 hover:bg-amber-600 cursor-pointer text-white"
+            }`}
           >
-            View Status
+            {isCountingDown
+              ? `View Status (${Math.floor(countdown / 60)}:${(countdown % 60)
+                  .toString()
+                  .padStart(2, "0")})`
+              : "View Status"}
           </button>,
         ]}
       >
@@ -249,8 +299,22 @@ function checkStatusipe() {
             IPE Status Check
           </h1>
 
+          {verificationResult && (
+            <>
+              <p className="text-[17px] text-green-900 bg-green-100 mb-5 ">
+                {verificationResult.description}
+              </p>
+            </>
+          )}
+
           <div className="text-gray-600 text-xl mb-4">
-            Status check request submitted successfully!
+            Status check request submitted successfully! Please wait for 10
+            minutes. Do not close this window or navigate away.
+          </div>
+
+          <div className="text-2xl font-semibold text-amber-500">
+            Time remaining: {Math.floor(countdown / 60)}:
+            {(countdown % 60).toString().padStart(2, "0")}
           </div>
         </div>
       </Modal>

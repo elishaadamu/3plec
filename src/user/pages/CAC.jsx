@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import base64 from "base64-encode-file";
 import {
   Form,
   Input,
@@ -90,13 +91,15 @@ function CAC() {
     }
   };
 
-  const convertToBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-    });
+  // Replace convertToBase64 function with the new one using base64-encode-file
+  const convertToBase64 = async (file) => {
+    try {
+      const base64String = await base64(file);
+      return base64String.split(",")[1]; // Remove the data:image/* prefix
+    } catch (error) {
+      console.error("Error converting file to base64:", error);
+      throw error;
+    }
   };
 
   const SECRET_KEY = import.meta.env.VITE_APP_SECRET_KEY;
@@ -161,7 +164,7 @@ function CAC() {
       const userObj = decryptData(userStr);
       const userId = userObj?._id || userObj?.id;
 
-      // Convert files to base64
+      // Convert files to base64 using the new method
       const passportBase64 = await convertToBase64(fileList.passport);
       const signatureBase64 = await convertToBase64(fileList.signature);
 
@@ -194,6 +197,7 @@ function CAC() {
         phoneNumber: allFormData.phone,
         email: allFormData.email,
         homeAddress: allFormData.homeAddress,
+        cityOfOrigin: allFormData.cityOfOrigin,
         stateOfOrigin: allFormData.stateOfOrigin,
         lgaOfOrigin: allFormData.lgaOfOrigin,
 
@@ -202,9 +206,9 @@ function CAC() {
         identityNumber: values.identityNumber,
         dateOfBirth: values.dateOfBirth?.format("YYYY-MM-DD"),
 
-        // Files
-        passport: passportBase64.split(",")[1],
-        signature: signatureBase64.split(",")[1],
+        // Files - no need to split as we're already getting clean base64
+        passport: passportBase64,
+        signature: signatureBase64,
       };
 
       console.log("Final payload:", payload);
@@ -299,6 +303,13 @@ function CAC() {
           ...prev,
           [type]: file,
         }));
+
+        // Debug log the base64 string
+        const base64String = await convertToBase64(file);
+        console.log(
+          `${type} base64 preview:`,
+          base64String.substring(0, 50) + "..."
+        );
       } catch (error) {
         console.error(`Error handling ${type} upload:`, error);
         message.error(`Failed to upload ${type}`);
@@ -522,10 +533,17 @@ function CAC() {
                 <Input />
               </Form.Item>
             </div>
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Form.Item
                 name="homeAddress"
                 label="Home Address"
+                rules={[{ required: true }]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                name="cityOfOrigin"
+                label="City of Origin"
                 rules={[{ required: true }]}
               >
                 <Input />
@@ -578,16 +596,18 @@ function CAC() {
                 ]}
               >
                 <Select placeholder="Select identity type">
-                  <Select.Option value="driversLicence">
+                  <Select.Option value="Drivers Licence">
                     Driver's Licence
                   </Select.Option>
-                  <Select.Option value="nin">
+                  <Select.Option value="NIN">
                     National Identity Number
                   </Select.Option>
-                  <Select.Option value="internationalPassport">
+                  <Select.Option value="International Passport">
                     International Passport
                   </Select.Option>
-                  <Select.Option value="votersCard">Voter's Card</Select.Option>
+                  <Select.Option value="Voters Card">
+                    Voter's Card
+                  </Select.Option>
                 </Select>
               </Form.Item>
               <Form.Item

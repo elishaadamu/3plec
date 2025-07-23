@@ -158,15 +158,15 @@ function Enrollment() {
       // Construct payload with amount and passport
       const payload = {
         userId,
-        enrollmentType: values.enrollmentType,
+        type: values.enrollmentType,
         amount: getEnrollmentAmount(values.enrollmentType), // Add amount based on type,
-        firstName: values.firstName,
+        firstname: values.firstName,
         middleName: values.middleName || "",
         surname: values.surname,
-        dateOfBirth: formattedDOB,
-        stateOfOrigin: values.stateOfOrigin,
-        localOfOrigin: values.localOfOrigin,
-        phoneNumber: values.phone,
+        dob: formattedDOB,
+        state: values.stateOfOrigin,
+        lga: values.localOfOrigin,
+        phone: values.phone,
         gender: values.gender,
         height: values.height,
         passport: passportBase64, // Base64 encoded passport image

@@ -27,7 +27,7 @@ function NIN() {
   ];
 
   // Add new state for API prices
-  const [apiPrices, setApiPrices] = useState(null);
+  const [AgentPrices, setAgentPrices] = useState(null);
 
   // Add useEffect to fetch prices when component mounts
   useEffect(() => {
@@ -39,16 +39,17 @@ function NIN() {
         );
         console.log("API Prices Response:", response.data);
         // Find NIN pricing
-        const ninPricing = response.data.find((item) => item.key === "nin");
-        console.log("NIN Pricing:", ninPricing.prices?.agent);
+        const ninPricing = response.data.find(
+          (item) => item.serviceKey === "nin"
+        );
         if (ninPricing) {
           // Update cardSlip with new prices
           const updatedCardSlip = cardSlip.map((slip) => ({
             ...slip,
-            price: ninPricing?.prices?.agent,
+            price: ninPricing.agentPrice,
           }));
 
-          setApiPrices(updatedCardSlip);
+          setAgentPrices(updatedCardSlip);
         }
       } catch (error) {
         console.error("Error fetching API prices:", error);
@@ -64,25 +65,25 @@ function NIN() {
       label: "Information Slip",
       value: "Basic",
       image: BasicImg,
-      price: apiPrices?.find((p) => p.value === "Basic")?.price || 200,
+      price: AgentPrices?.find((p) => p.value === "Basic")?.price || 200,
     },
     {
       label: "Regular Slip",
       value: "Regular",
       image: RegularImg,
-      price: apiPrices?.find((p) => p.value === "Regular")?.price || 200,
+      price: AgentPrices?.find((p) => p.value === "Regular")?.price || 200,
     },
     {
       label: "Standard Slip",
       value: "Standard",
       image: StandardImg,
-      price: apiPrices?.find((p) => p.value === "Standard")?.price || 200,
+      price: AgentPrices?.find((p) => p.value === "Standard")?.price || 200,
     },
     {
       label: "Premium Slip",
       value: "Premium",
       image: PremiumImg,
-      price: apiPrices?.find((p) => p.value === "Premium")?.price || 300,
+      price: AgentPrices?.find((p) => p.value === "Premium")?.price || 300,
     },
   ];
 
@@ -127,7 +128,7 @@ function NIN() {
 
     // Find the selected slip's price from the updated prices
     const selectedSlipObj =
-      apiPrices?.find((s) => s.value === selectedSlip) ||
+      AgentPrices?.find((s) => s.value === selectedSlip) ||
       cardSlip.find((s) => s.value === selectedSlip);
     const slipAmount = selectedSlipObj ? selectedSlipObj.price : 0;
 
@@ -168,7 +169,7 @@ function NIN() {
       userId,
       pin: formData.pin,
     };
-
+    console.log("Payload for verification:", payload);
     try {
       const response = await axios.post(
         `${config.apiBaseUrl}${config.endpoints.NINVerify}`,
@@ -177,7 +178,7 @@ function NIN() {
           withCredentials: true,
         }
       );
-      console.log("Verification Response:", response.data);
+
       setVerificationResult(response.data);
 
       // Show success alert
@@ -197,7 +198,7 @@ function NIN() {
         draggable: true,
       });
 
-      const ninData = response.data?.data?.data.nin_data;
+      const ninData = response.data?.data?.nin_data;
       if (ninData) {
         navigate("/dashboard/verifications/ninslip", {
           state: { userData: ninData },

@@ -180,10 +180,12 @@ function IPEClearance() {
         );
         console.log("Fetched pricing data:", response.data);
         // Find IPE pricing
-        const ipePricing = response.data.find((item) => item.key === "ipe");
+        const ipePricing = response.data.find(
+          (item) => item.serviceKey === "ipe"
+        );
 
-        if (ipePricing?.prices?.agent) {
-          setAmount(ipePricing?.prices?.agent);
+        if (ipePricing?.agentPrice) {
+          setAmount(ipePricing.agentPrice);
         }
       } catch (error) {
         console.error("Error fetching IPE price:", error);
@@ -294,6 +296,14 @@ function IPEClearance() {
           <h1 className="text-3xl font-bold text-amber-500 mb-5">
             IPE Clearance
           </h1>
+
+          {verificationResult && (
+            <>
+              <p className="text-[17px] text-green-900 bg-green-100 mb-5 p-3 rounded">
+                {verificationResult.description}
+              </p>
+            </>
+          )}
 
           <div className="text-gray-600 text-xl mb-4">
             Clearance request submitted successfully!

@@ -128,6 +128,7 @@ function AirtimeSub() {
         `${config.apiBaseUrl}${config.endpoints.airtimeSubscription}`,
         payload
       );
+      console.log("Airtime purchase response:", response.data);
       if (response.data?.data.Status === "successful") {
         try {
           // Refresh account balance first

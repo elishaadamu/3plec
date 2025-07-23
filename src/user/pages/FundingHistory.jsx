@@ -32,7 +32,6 @@ export default function VerificationsHistoryTable() {
   const encryptedUser = localStorage.getItem("user");
   const user = decryptData(encryptedUser);
   const userId = user?._id || user?.id;
-
   // Set the API link using the userId
   const apiLink = `${config.apiBaseUrl}${config.endpoints.VerificationHistory}${userId}`;
 

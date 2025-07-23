@@ -35,7 +35,7 @@ function Personalisation() {
         console.log("API Prices Response:", response.data);
         // Find personalisation pricing
         const personalisationPricing = response.data.find(
-          (item) => item.serviceKey === "personalisation"
+          (item) => item.serviceKey === "personalization"
         );
         console.log("Personalisation Pricing:", personalisationPricing);
         if (personalisationPricing) {
