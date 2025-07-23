@@ -1,0 +1,35 @@
+footer {
+  background-color: black;
+  color: white;
+  bottom: 0;
+  width: 100%;
+  padding: 1rem 0;
+}
+footer > div {
+  margin-top: 70px;
+}
+footer h2 {
+  font-weight: 600;
+  font-size: x-large;
+}
+footer ul {
+  padding-left: 0px;
+}
+footer ul li {
+  margin-top: 15px;
+}
+footer ul a {
+  color: gray;
+}
+footer .nav-logo {
+  margin-left: 0px;
+  margin-top: -13px !important;
+}
+footer ul a:hover {
+  color: white;
+}
+footer hr {
+  border: 1px solid rgb(112, 112, 112);
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
