@@ -65,10 +65,27 @@ export default function VerificationsHistoryTable() {
   const [selectedTransaction, setSelectedTransaction] = React.useState(null);
   const [pageSize, setPageSize] = React.useState(10);
   const [currentPage, setCurrentPage] = React.useState(1);
+  const [refreshingStatus, setRefreshingStatus] = React.useState({}); // Add state for tracking refresh status
 
-  // Add handleViewStatus function
+  // Update handleViewStatus function
   const handleViewStatus = async (transaction) => {
     try {
+      // Show confirmation dialog first
+      const result = await Swal.fire({
+        title: "Refresh IPE Status",
+        text: "Do you want to fetch the latest status for this transaction?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#f59e0b",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, refresh",
+        cancelButtonText: "Cancel",
+      });
+
+      if (!result.isConfirmed) {
+        return; // User cancelled
+      }
+
       // Get user ID from localStorage
       let userId = null;
       try {
@@ -88,6 +105,9 @@ export default function VerificationsHistoryTable() {
 
       // Extract tracking ID from transaction data
       const trackingId =
+        transaction.data?.data?.raw_data?.old_tracking_id ||
+        transaction.data?.data?.raw_data?.newTracking_id ||
+        transaction.data?.data?.raw_data?.tracking_id ||
         transaction.data?.old_tracking_id ||
         transaction.data?.newTracking_id ||
         transaction.data?.tracking_id;
@@ -103,11 +123,11 @@ export default function VerificationsHistoryTable() {
       };
       console.log("IPE Payload", payload);
 
-      // Show loading toast
-      toast.info("Fetching latest status...");
+      // Set loading state for this specific transaction
+      setRefreshingStatus((prev) => ({ ...prev, [transaction._id]: true }));
 
       // Trigger the free status IPE endpoint
-      await axios.post(
+      const response = await axios.post(
         `${config.apiBaseUrl}${config.endpoints.freeStatusipe}`,
         payload,
         { withCredentials: true }
@@ -117,10 +137,20 @@ export default function VerificationsHistoryTable() {
       toast.success("Status updated successfully!");
 
       // Refresh the current page data
-      fetchVerificationHistory();
+      await fetchVerificationHistory();
     } catch (error) {
       console.error("Error triggering free status IPE:", error);
-      toast.error("Failed to fetch latest status. Please try again.");
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to fetch latest status. Please try again."
+      );
+    } finally {
+      // Remove loading state for this transaction
+      setRefreshingStatus((prev) => {
+        const newState = { ...prev };
+        delete newState[transaction._id];
+        return newState;
+      });
     }
   };
 
@@ -337,13 +367,14 @@ export default function VerificationsHistoryTable() {
         />
       </div>
 
-      {loading && (
-        <div className="flex justify-center items-center h-32">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      {loading ? (
+        <div className="flex flex-col items-center justify-center p-16">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mb-4"></div>
+          <p className="text-gray-500 text-lg">
+            Loading IPE transaction history...
+          </p>
         </div>
-      )}
-
-      {!loading && sortedTransactions.length > 0 ? (
+      ) : !loading && sortedTransactions.length > 0 ? (
         <div className="relative overflow-hidden rounded-lg border border-gray-200 shadow">
           <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             <table className="w-full table-auto divide-y divide-gray-200 transition-all duration-300 ease-in-out">
@@ -354,14 +385,13 @@ export default function VerificationsHistoryTable() {
                     sortKey="createdAt"
                     className="w-[clamp(80px,15vw,112px)] px-2 py-2 text-left text-[clamp(0.65rem,1vw,0.75rem)] font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200"
                   />
-
                   <TableHeader
                     label="Status"
                     sortKey="status"
                     className="w-[100px] px-2 py-2 text-left text-[clamp(0.65rem,1vw,0.75rem)] font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200"
                   />
                   <th className="w-[60px] px-2 py-2 text-left text-[clamp(0.65rem,1vw,0.75rem)] font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
-                    View Slip
+                    Tracking ID
                   </th>
                   <th className="w-[60px] px-2 py-2 text-left text-[clamp(0.65rem,1vw,0.75rem)] font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
                     Details
@@ -380,23 +410,17 @@ export default function VerificationsHistoryTable() {
                     <td className="w-[clamp(80px,15vw,112px)] px-2 py-2 whitespace-nowrap text-[clamp(0.8rem,1vw,0.75rem)] text-gray-900">
                       {formatDate(transaction.createdAt)}
                     </td>
-
                     <td className="w-[100px] px-2 py-2 whitespace-nowrap">
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        {transaction.data?.transactionStatus || "completed"}
+                        {transaction.data?.data?.raw_data?.transactionStatus ||
+                          "completed"}
                       </span>
                     </td>
-                    <td className="w-[60px] px-2 py-2 whitespace-nowrap">
-                      {transaction.dataFor !== "IPE-Slip" ? (
-                        <button
-                          onClick={() => handleViewSlip(transaction)}
-                          className="text-green-600 hover:text-green-800 transition-colors"
-                        >
-                          <EyeOutlined className="text-lg" />
-                        </button>
-                      ) : (
-                        <span className="text-gray-400">N/A</span>
-                      )}
+                    <td className="w-[100px] px-2 py-2 whitespace-nowrap">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium">
+                        {transaction.data?.data?.raw_data?.newTracking_id ||
+                          "N/A"}
+                      </span>
                     </td>
                     <td className="w-[60px] px-2 py-2 whitespace-nowrap">
                       <button
@@ -410,9 +434,20 @@ export default function VerificationsHistoryTable() {
                       <Tooltip title="Refresh IPE Status">
                         <button
                           onClick={() => handleViewStatus(transaction)}
-                          className="text-amber-600 hover:text-amber-800 transition-colors"
+                          disabled={refreshingStatus[transaction._id]}
+                          className={`transition-colors ${
+                            refreshingStatus[transaction._id]
+                              ? "text-gray-400 cursor-not-allowed"
+                              : "text-amber-600 hover:text-amber-800"
+                          }`}
                         >
-                          <ReloadOutlined className="text-lg" />
+                          <ReloadOutlined
+                            className={`text-lg ${
+                              refreshingStatus[transaction._id]
+                                ? "animate-spin"
+                                : ""
+                            }`}
+                          />
                         </button>
                       </Tooltip>
                     </td>
@@ -581,13 +616,15 @@ export default function VerificationsHistoryTable() {
                 <div>
                   <p className="text-sm font-medium text-gray-500">Status</p>
                   <span className="mt-1 text-sm font-medium capitalize px-2 py-0.5 rounded-full inline-block bg-green-100 text-green-800">
-                    {selectedTransaction.data?.transactionStatus || "N/A"}
+                    {selectedTransaction.data?.data?.raw_data
+                      ?.transactionStatus || "N/A"}
                   </span>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Name</p>
                   <p className="mt-1 text-sm text-gray-900">
-                    {selectedTransaction.data?.reply?.name || "N/A"}
+                    {selectedTransaction.data?.data?.raw_data.reply?.name ||
+                      "N/A"}
                   </p>
                 </div>
                 <div>
@@ -595,13 +632,14 @@ export default function VerificationsHistoryTable() {
                     Date of Birth
                   </p>
                   <p className="mt-1 text-sm text-gray-900">
-                    {selectedTransaction.data?.reply?.dob || "N/A"}
+                    {selectedTransaction.data?.data?.raw_data.reply?.dob ||
+                      "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">New NIN</p>
                   <p className="mt-1 text-sm text-gray-900">
-                    {selectedTransaction.data?.newNIN || "N/A"}
+                    {selectedTransaction.data?.data?.raw_data?.newNIN || "N/A"}
                   </p>
                 </div>
                 <div>
@@ -609,7 +647,8 @@ export default function VerificationsHistoryTable() {
                     New Tracking ID
                   </p>
                   <p className="mt-1 text-sm text-gray-900">
-                    {selectedTransaction.data?.newTracking_id || "N/A"}
+                    {selectedTransaction.data?.data?.raw_data?.newTracking_id ||
+                      "N/A"}
                   </p>
                 </div>
                 <div>
@@ -617,18 +656,11 @@ export default function VerificationsHistoryTable() {
                     Old Tracking ID
                   </p>
                   <p className="mt-1 text-sm text-gray-900">
-                    {selectedTransaction.data?.old_tracking_id || "N/A"}
+                    {selectedTransaction.data?.data?.raw_data
+                      ?.old_tracking_id || "N/A"}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">
-                    Verification Status
-                  </p>
-                  <p className="mt-1 text-sm text-gray-900">
-                    {selectedTransaction.data?.verificationStatus || "N/A"}
-                  </p>
-                </div>
-                <div className="col-span-2">
                   <p className="text-sm font-medium text-gray-500">Message</p>
                   <p className="mt-1 text-sm text-gray-900">
                     {selectedTransaction.data?.message || "N/A"}

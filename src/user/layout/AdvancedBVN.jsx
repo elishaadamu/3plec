@@ -24,10 +24,11 @@ function AdvancedBVNSlip() {
   }, []);
 
   const user = slipData || {};
+  console.log("User", user);
 
   // Use base64 image if available, else fallback
-  const avatarSrc = user.base64Image
-    ? `data:image/jpeg;base64,${user.base64Image}`
+  const avatarSrc = user.image
+    ? `data:image/jpeg;base64, ${user.image}`
     : Avatar;
 
   const handlePrint = () => {
@@ -66,7 +67,7 @@ function AdvancedBVNSlip() {
             <div>
               <p className="text-gray-400 text-[17px] font-semibold">SURNAME</p>
               <p className="text-gray-900 text-[18px] font-semibold">
-                {user.lastName || "-"}
+                {user.personal_information.last_name || "-"}
               </p>
             </div>
             <div className="mt-3">
@@ -74,7 +75,9 @@ function AdvancedBVNSlip() {
                 FIRST NAME/ OTHER NAME
               </p>
               <p className="text-gray-900 text-[18px] font-semibold">
-                {`${user.firstName || "-"} ${user.middleName || ""}`}
+                {`${user.personal_information.first_name || "-"} ${
+                  user.personal_information.middle_name || ""
+                }`}
               </p>
             </div>
             <div className="flex flex-row gap-10 mt-3">
@@ -83,7 +86,7 @@ function AdvancedBVNSlip() {
                   DATE OF BIRTH
                 </p>
                 <p className="text-gray-900 text-[18px] font-semibold">
-                  {user.dateOfBirth || "-"}
+                  {user.personal_information.date_of_birth || "-"}
                 </p>
               </div>
               <div>
@@ -91,15 +94,15 @@ function AdvancedBVNSlip() {
                   GENDER
                 </p>
                 <p className="text-gray-900 text-[18px] font-semibold">
-                  {user.gender || "-"}
+                  {user.personal_information.gender || "-"}
                 </p>
               </div>
               <div>
                 <p className="text-gray-400 text-[16px] font-semibold">
                   ISSUED DATE
                 </p>
-                <p className="text-gray-900 text-[18px] font-semibold">
-                  {user.enrollmentDate || "-"}
+                <p className="text-gray-900 text-[18px] font-semibold text-center">
+                  -
                 </p>
               </div>
             </div>
@@ -110,7 +113,7 @@ function AdvancedBVNSlip() {
           <p className="text-gray-400 text-[18px] font-semibold">
             Bank Verification Number (BVN)
           </p>
-          <p className="text-gray-900 text-3xl font-semibold">
+          <p className="text-gray-900 text-3xl font-semibold ">
             {user.bvn || "-"}
           </p>
         </div>

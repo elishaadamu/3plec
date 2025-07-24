@@ -249,9 +249,14 @@ export default function VerificationsHistoryTable() {
         />
       </div>
 
-      {loading}
-
-      {!loading && sortedTransactions.length > 0 ? (
+      {loading ? (
+        <div className="flex flex-col items-center justify-center p-16">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mb-4"></div>
+          <p className="text-gray-500 text-lg">
+            Loading BVN verification history...
+          </p>
+        </div>
+      ) : !loading && sortedTransactions.length > 0 ? (
         <div className="relative overflow-hidden rounded-lg border border-gray-200 shadow">
           <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             <table className="w-full table-auto divide-y divide-gray-200 transition-all duration-300 ease-in-out">
@@ -289,7 +294,7 @@ export default function VerificationsHistoryTable() {
                     </td>
                     <td className="w-[clamp(120px,20vw,160px)] px-2 py-2 whitespace-nowrap">
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[clamp(0.65rem,1vw,0.75rem)] font-medium capitalize bg-blue-100 text-blue-800">
-                        {transaction.dataFor}
+                        {transaction.dataFor} - {transaction.slipLayout}
                       </span>
                     </td>
                     <td className="w-[60px] px-2 py-2 whitespace-nowrap">
@@ -549,41 +554,58 @@ export default function VerificationsHistoryTable() {
                 <div>
                   <p className="text-sm font-medium text-gray-500">Data For</p>
                   <p className="mt-1 text-sm text-gray-900">
-                    {selectedTransaction.dataFor}
+                    {selectedTransaction.dataFor} -{" "}
+                    {selectedTransaction.slipLayout}
+                  </p>
+                </div>
+                {selectedTransaction.verifyWith === "nin" ? (
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">
+                      NIN Number
+                    </p>
+                    <p className="mt-1 text-sm text-gray-900 uppercase">
+                      {selectedTransaction?.data?.data?.nin}
+                    </p>
+                  </div>
+                ) : selectedTransaction.verifyWith === "bvn" ? (
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">
+                      BVN Number
+                    </p>
+                    <p className="mt-1 text-sm text-gray-900 uppercase">
+                      {selectedTransaction?.data?.data?.bvn}
+                    </p>
+                  </div>
+                ) : null}
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Status</p>
+                  <span className="mt-1 text-sm font-medium capitalize px-2 py-0.5 rounded-full inline-block bg-blue-100 text-blue-800">
+                    {selectedTransaction.data?.data.verification_status ||
+                      "N/A"}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Reference</p>
+                  <p className="mt-1 text-sm text-gray-900">
+                    {selectedTransaction.data?.data.verification_details
+                      ?.reference || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">
                     Verification Type
                   </p>
-                  <p className="mt-1 text-sm text-gray-900">
+                  <p className="mt-1 text-sm text-gray-900 uppercase">
                     {selectedTransaction.verifyWith}
                   </p>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Status</p>
-                  <span className="mt-1 text-sm font-medium capitalize px-2 py-0.5 rounded-full inline-block bg-blue-100 text-blue-800">
-                    {selectedTransaction.data?.verification?.status || "N/A"}
-                  </span>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Reference</p>
-                  <p className="mt-1 text-sm text-gray-900">
-                    {selectedTransaction.data?.verification?.reference || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Endpoint</p>
-                  <p className="mt-1 text-sm text-gray-900">
-                    {selectedTransaction.data?.endpoint_name || "N/A"}
-                  </p>
-                </div>
+
                 <div className="col-span-2">
                   <p className="text-sm font-medium text-gray-500">
                     Response Detail
                   </p>
                   <p className="mt-1 text-sm text-gray-900">
-                    {selectedTransaction.data?.detail || "N/A"}
+                    {selectedTransaction.data?.message || "N/A"}
                   </p>
                 </div>
               </div>
