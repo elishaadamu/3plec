@@ -279,6 +279,9 @@ export default function VerificationsHistoryTable() {
                     className="w-[clamp(120px,20vw,160px)] px-2 py-2 text-left text-[clamp(0.65rem,1vw,0.75rem)] font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200"
                   />
                   <th className="w-[60px] px-2 py-2 text-left text-[clamp(0.65rem,1vw,0.75rem)] font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                    NIN Number
+                  </th>
+                  <th className="w-[60px] px-2 py-2 text-left text-[clamp(0.65rem,1vw,0.75rem)] font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
                     View Slip
                   </th>
                   <th className="w-[60px] px-2 py-2 text-left text-[clamp(0.65rem,1vw,0.75rem)] font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
@@ -301,6 +304,11 @@ export default function VerificationsHistoryTable() {
                     <td className="w-[clamp(120px,20vw,160px)] px-2 py-2 whitespace-nowrap">
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[clamp(0.65rem,1vw,0.75rem)] font-medium capitalize bg-blue-100 text-blue-800">
                         {transaction.dataFor} - {transaction.slipLayout}
+                      </span>
+                    </td>
+                    <td className="w-[clamp(120px,20vw,160px)] px-2 py-2 whitespace-nowrap">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[clamp(0.65rem,1vw,0.75rem)] font-medium capitalize ">
+                        {transaction.data.data.nin}
                       </span>
                     </td>
                     <td className="w-[60px] px-2 py-2 whitespace-nowrap">
